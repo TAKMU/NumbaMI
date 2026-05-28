@@ -19,3 +19,5 @@ Please follow these steps:
 </ol>
 
 Considerations> Right now the input accepts genes as rows. 
+
+You can execute an example with the pipeline as it is. 
