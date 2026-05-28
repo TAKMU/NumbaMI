@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from numba import njit, prange
+from numba import njit, prange, set_num_threads
 
 def delete_zeroes(file_path, axis = 1, sep = "\t", index_col = 0):
     # axis = 1 for columns, axis = 0 for rows
@@ -69,16 +69,15 @@ def mi_matrix_numba(X):
     return mi
 
 
-def create_mi_matrix(df):
-    # Drop first column if needed
-    df = df.drop(columns=df.columns[0])
-
-    genes = df.columns
+def create_mi_matrix(df, num_threads=25):
+    if num_threads != -1:
+        set_num_threads(num_threads)
+    genes = df.columns.tolist()
     for col in df.columns:
         df[col] = pd.factorize(df[col], sort=True)[0].astype("int32")
-    # Important: values must already be discretized integer labels: 0, 1, 2, ...
     X = df.to_numpy(dtype=np.int32)
-
     mi = mi_matrix_numba(X)
-
-    return pd.DataFrame(mi, columns=genes, index=genes)
+    
+    df_mi = pl.from_numpy(mi, schema=genes)
+    df_mi = df_mi.insert_column(0, pl.Series("", genes))
+    return df_mi
