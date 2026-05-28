@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit, prange, set_num_threads
+import polars as pl
 
 def delete_zeroes(file_path, axis = 1, sep = "\t", index_col = 0):
     # axis = 1 for columns, axis = 0 for rows
